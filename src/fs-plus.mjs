@@ -4,8 +4,8 @@ import path from "path";
 import async from "async";
 import { mkdirp } from "mkdirp";
 import { rimraf, rimrafSync } from "rimraf";
-
-const _ = require("underscore-plus");
+import includes from "lodash.includes";
+import last from "lodash.last";
 
 // Public: Useful extensions to node's built-in fs module
 //
@@ -297,7 +297,7 @@ const fsPlus = {
       }
     });
     return paths.filter((pathToCheck) =>
-      _.include(extensions, path.extname(pathToCheck))
+      includes(extensions, path.extname(pathToCheck))
     );
   },
 
@@ -393,7 +393,7 @@ const fsPlus = {
   //
   // It also creates the necessary parent directories.
   writeFile(filePath, content, options, callback) {
-    callback = _.last(arguments);
+    callback = last(arguments);
     mkdirp(path.dirname(filePath)).then(
       () => {
         fs.writeFile(filePath, content, options, callback);
@@ -623,7 +623,7 @@ const fsPlus = {
   // undefined otherwise.
   resolve(...args) {
     let extensions;
-    if (_.isArray(_.last(args))) {
+    if (Array.isArray(last(args))) {
       extensions = args.pop();
     }
     const pathToResolve = args.pop()?.toString();
