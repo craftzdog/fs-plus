@@ -500,7 +500,7 @@ describe "fs", ->
     it "returns %AppData% on Windows", ->
       Object.defineProperty process, 'platform', value: 'win32'
       unless process.env.APPDATA
-        Object.defineProperty process.env, 'APPDATA', value: 'C:\\Users\\test\\AppData\\Roaming'
+        process.env['APPDATA'] = 'C:\\Users\\test\\AppData\\Roaming'
       expect(fs.getAppDataDirectory()).toBe process.env.APPDATA
 
     it "returns /var/lib on linux", ->
