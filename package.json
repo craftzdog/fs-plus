@@ -1,8 +1,9 @@
 {
-  "name": "fs-plus",
+  "name": "@craftzdog/fs-plus",
   "version": "3.1.1",
   "description": "node's fs with more helpers",
   "main": "./lib/fs-plus.js",
+  "types": "src/index.d.ts",
   "scripts": {
     "clean": "shx rm -rf lib",
     "test": "jasmine-focused --captureExceptions --coffee spec",
@@ -25,22 +26,23 @@
     "filesystem"
   ],
   "devDependencies": {
-    "jasmine-focused": "1.x",
-    "temp": "~0.8.1",
+    "@babel/cli": "^7.21.5",
+    "@babel/core": "^7.22.1",
+    "babel-preset-atomic": "^5.0.0",
     "coffeelint": "^2.1.0",
+    "cross-env": "^7.0.2",
+    "jasmine-focused": "1.x",
     "rollup": "^2.18.2",
     "rollup-plugin-atomic": "^1.2.0",
-    "@babel/cli": "7.10.3",
-    "@babel/core": "7.10.3",
-    "babel-preset-atomic": "^1.0.7",
     "shx": "^0.3.2",
-    "cross-env": "^7.0.2"
+    "temp": "~0.8.1"
   },
   "dependencies": {
-    "async": "^1.5.2",
-    "mkdirp": "^0.5.1",
-    "rimraf": "^2.5.2",
-    "underscore-plus": "1.x"
+    "async": "^3.2.4",
+    "lodash.includes": "^4.3.0",
+    "lodash.last": "^3.0.0",
+    "mkdirp": "^3.0.1",
+    "rimraf": "^5.0.1"
   },
   "coffeelintConfig": {
     "no_empty_param_list": {
