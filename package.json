@@ -3,6 +3,7 @@
   "version": "3.1.1",
   "description": "node's fs with more helpers",
   "main": "./lib/fs-plus.js",
+  "types": "src/index.d.ts",
   "scripts": {
     "clean": "shx rm -rf lib",
     "test": "jasmine-focused --captureExceptions --coffee spec",
