@@ -14,6 +14,7 @@ export * from "fs";
  * Preload the rimraf module so that it is available synchronously.
  */
 export function loadRimRaf(): Promise<typeof import("rimraf")>;
+
 /**
  * Returns the absolute path to the home directory.
  */
@@ -62,8 +63,8 @@ export function isDirectorySync(directoryPath: string): boolean;
  * Asynchronously checks that the given path exists and is a directory.
  */
 export function isDirectory(
-    directoryPath: string,
-    callback: (result: boolean) => void
+  directoryPath: string,
+  callback: (result: boolean) => void
 ): void;
 
 /**
@@ -80,8 +81,8 @@ export function isSymbolicLinkSync(symlinkPath: string): boolean;
  * Calls back with true if the specified path is a symbolic link.
  */
 export function isSymbolicLink(
-    symlinkPath: string,
-    callback: (result: boolean) => void
+  symlinkPath: string,
+  callback: (result: boolean) => void
 ): void;
 
 /**
@@ -103,17 +104,17 @@ export function listSync(rootPath: string, extensions?: string[]): string[];
  * Asynchronously lists the files and directories in the given path. The listing is not recursive.
  */
 export function list(
-    rootPath: string,
-    callback: (err: Error, result: string[]) => void
+  rootPath: string,
+  callback: (err: Error, result: string[]) => void
 ): void;
 
 /**
  * Asynchronously lists the files and directories in the given path. The listing is not recursive.
  */
 export function list(
-    rootPath: string,
-    extensions: string[],
-    callback: (err: Error, result: string[]) => void
+  rootPath: string,
+  extensions: string[],
+  callback: (err: Error, result: string[]) => void
 ): void;
 
 /**
@@ -130,9 +131,9 @@ export function moveSync(source: string, target: string): void;
  * Asynchronously moves the source file or directory to the target.
  */
 export function move(
-    source: string,
-    target: string,
-    callback: (err: Error) => void
+  source: string,
+  target: string,
+  callback: (err: Error) => void
 ): void;
 
 /**
@@ -144,43 +145,51 @@ export function removeSync(pathToRemove: string): void;
  * Asynchronously removes the file or directory at the given path.
  */
 export function remove(
-    pathToRemove: string,
-    callback: (err: Error) => void
+  pathToRemove: string,
+  callback: (err: Error) => void
 ): void;
 
 /**
  * Open, write, flush, and close a file, writing the given content synchronously.
  */
 export function writeFileSync(
-    filePath: string,
-    content: string,
-    options?:
-        | { encoding?: string | null | undefined; mode?: number | string | undefined; flag?: string | undefined }
-        | string
-        | null
+  filePath: string,
+  content: string,
+  options?:
+    | {
+        encoding?: string | null | undefined;
+        mode?: number | string | undefined;
+        flag?: string | undefined;
+      }
+    | string
+    | null
 ): void;
 
 /**
  * Open, write, flush, and close a file, writing the given content asynchronously.
  */
 export function writeFile(
-    filePath: string,
-    content: any,
-    callback: (err: any) => void
+  filePath: string,
+  content: any,
+  callback: (err: any) => void
 ): void;
 
 /**
  * Open, write, flush, and close a file, writing the given content asynchronously.
  */
 export function writeFile(
-    filePath: string,
-    content: any,
-    options:
-        | { encoding?: string | null | undefined; mode?: number | string | undefined; flag?: string | undefined }
-        | string
-        | undefined
-        | null,
-    callback: (err: any) => void
+  filePath: string,
+  content: any,
+  options:
+    | {
+        encoding?: string | null | undefined;
+        mode?: number | string | undefined;
+        flag?: string | undefined;
+      }
+    | string
+    | undefined
+    | null,
+  callback: (err: any) => void
 ): void;
 
 /**
@@ -192,18 +201,18 @@ export function copySync(source: string, target: string): void;
  * Asynchronously copies the given path.
  */
 export function copy(
-    source: string,
-    target: string,
-    callback: (err: any) => void
+  source: string,
+  target: string,
+  callback: (err: any) => void
 ): void;
 
 /**
  * Copies the given path synchronously, buffering reads and writes to keep memory footprint to a minimum. If the destination directory doesn't exist, it creates it.
  */
 export function copyFileSync(
-    source: string,
-    target: string,
-    bufferSize?: number
+  source: string,
+  target: string,
+  bufferSize?: number
 ): void;
 
 /**
@@ -215,27 +224,27 @@ export function makeTreeSync(directoryPath: string): void;
  * Asynchronously create a directory at the specified path including any missing parent directories.
  */
 export function makeTree(
-    directoryPath: string,
-    callback: (err: any) => void
+  directoryPath: string,
+  callback: (err: any) => void
 ): void;
 
 /**
  * Recursively walk the given path and execute the given functions.
  */
 export function traverseTreeSync(
-    rootPath: string,
-    onFile: (file: string) => void,
-    onDirectory: (dir: string) => boolean | void
+  rootPath: string,
+  onFile: (file: string) => void,
+  onDirectory: (dir: string) => boolean | void
 ): void;
 
 /**
  * Asynchronously walk the given path and execute the given functions.
  */
 export function traverseTree(
-    rootPath: string,
-    onFile: (file: string) => void,
-    onDirectory: (dir: string) => boolean | void,
-    onDone: (err: any) => void
+  rootPath: string,
+  onFile: (file: string) => void,
+  onDirectory: (dir: string) => boolean | void,
+  onDone: (err: any) => void
 ): void;
 
 /**
@@ -247,25 +256,25 @@ export function md5ForPath(pathToDigest: string): string;
  * Finds a relative path among the given array of paths.
  */
 export function resolve(
-    loadPath: string,
-    pathToResolve: string,
-    extensions?: string[]
+  loadPath: string,
+  pathToResolve: string,
+  extensions?: string[]
 ): string | undefined;
 
 /**
  * Finds a relative path using Node's module paths as load paths.
  */
 export function resolveOnLoadPath(
-    pathToResolve: string,
-    extensions?: string[]
+  pathToResolve: string,
+  extensions?: string[]
 ): string | undefined;
 
 /**
  * Finds the first file in the given path which matches the extension in the order given.
  */
 export function resolveExtension(
-    pathToResolve: string,
-    extensions: string[]
+  pathToResolve: string,
+  extensions: string[]
 ): string | undefined;
 
 /**
