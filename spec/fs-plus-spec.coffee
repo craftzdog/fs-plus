@@ -3,6 +3,7 @@ temp = require 'temp'
 fs = require '../lib/fs-plus'
 
 temp.track()
+fs.loadRimRaf()
 
 describe "fs", ->
   fixturesDir = path.join(__dirname, 'fixtures')

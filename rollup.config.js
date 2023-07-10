@@ -1,6 +1,7 @@
-import { createPlugins } from "rollup-plugin-atomic"
+import { createPlugins } from "rollup-plugin-atomic";
 
-const plugins = createPlugins(["js", "babel"])
+const plugins = createPlugins(["js", "babel"]);
+const deps = Object.keys(require("./package.json").dependencies);
 
 export default [
   {
@@ -13,7 +14,7 @@ export default [
       },
     ],
     // loaded externally
-    external: ["atom"],
+    external: [...deps],
     plugins: plugins,
   },
-]
+];

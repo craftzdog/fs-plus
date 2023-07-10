@@ -3,7 +3,6 @@ import Module from "module";
 import path from "path";
 import async from "async";
 import { mkdirp } from "mkdirp";
-import { rimraf, rimrafSync } from "rimraf";
 import includes from "lodash.includes";
 import last from "lodash.last";
 
@@ -16,6 +15,15 @@ import last from "lodash.last";
 // [fs]: http://nodejs.org/api/fs.html
 const fsPlus = {
   __esModule: false,
+
+  rimraf: null,
+
+  loadRimRaf() {
+    if (!this.rimraf) {
+      return import("rimraf").then((rimraf) => (this.rimraf = rimraf));
+    }
+    return Promise.resolve(this.rimraf);
+  },
 
   getHomeDirectory() {
     if (process.platform === "win32" && !process.env.HOME) {
@@ -371,12 +379,18 @@ const fsPlus = {
 
   // Public: Removes the file or directory at the given path synchronously.
   removeSync(pathToRemove) {
-    return rimrafSync(pathToRemove);
+    if (!this.rimraf)
+      throw new Error(
+        "RimRaf is not loaded. You have to call `fs.loadRimRaf()` beforehand."
+      );
+    return this.rimraf.rimrafSync(pathToRemove);
   },
 
   // Public: Removes the file or directory at the given path asynchronously.
   remove(pathToRemove, callback) {
-    return rimraf(pathToRemove).then(callback, (error) => callback(error));
+    return this.loadRimRaf()
+      .then(({ rimraf }) => rimraf(pathToRemove))
+      .then(callback, (error) => callback(error));
   },
 
   // Public: Open, write, flush, and close a file, writing the given content
