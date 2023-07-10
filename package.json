@@ -1,6 +1,6 @@
 {
   "name": "@craftzdog/fs-plus",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "node's fs with more helpers",
   "main": "./lib/fs-plus.js",
   "types": "src/fs-plus.d.ts",
