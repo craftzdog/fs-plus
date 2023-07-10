@@ -11,6 +11,10 @@ import { Stats } from "fs";
 export * from "fs";
 
 /**
+ * Preload the rimraf module so that it is available synchronously.
+ */
+export function loadRimRaf(): Promise<typeof import("rimraf")>;
+/**
  * Returns the absolute path to the home directory.
  */
 export function getHomeDirectory(): string;
