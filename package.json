@@ -6,7 +6,7 @@
   "types": "src/fs-plus.d.ts",
   "scripts": {
     "clean": "rm -rf lib",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "dev": "npm run clean && cross-env NODE_ENV=development cross-env rollup -c -w",
     "build": "npm run clean && cross-env NODE_ENV=production cross-env rollup -c ",
     "prepublishOnly": "npm run build"
