@@ -3,13 +3,13 @@ import Module from "module";
 import path from "path";
 import { mkdirp } from "mkdirp";
 
-// Public: Useful extensions to node's built-in fs module
-//
-// Important, this extends Node's builtin in ['fs' module][fs], which means that you
-// can do anything that you can do with Node's 'fs' module plus a few extra
-// functions that we've found to be helpful.
-//
-// [fs]: http://nodejs.org/api/fs.html
+/**
+ * Useful extensions to node's built-in fs module.
+ *
+ * Important, this extends Node's builtin ['fs' module](http://nodejs.org/api/fs.html),
+ * which means that you can do anything that you can do with Node's 'fs' module
+ * plus a few extra functions that we've found to be helpful.
+ */
 const fsPlus = {
   __esModule: false,
 
@@ -30,15 +30,16 @@ const fsPlus = {
     }
   },
 
-  // Public: Make the given path absolute by resolving it against the current
-  // working directory.
-  //
-  // relativePath - The {String} containing the relative path. If the path is
-  //                prefixed with '~', it will be expanded to the current user's
-  //                home directory.
-  //
-  // Returns the {String} absolute path or the relative path if it's unable to
-  // determine its real path.
+  /**
+   * Make the given path absolute by resolving it against the current
+   * working directory.
+   *
+   * @param {string} relativePath - The relative path. If the path is
+   *   prefixed with '~', it will be expanded to the current user's
+   *   home directory.
+   * @returns {string} The absolute path or the relative path if it's unable to
+   *   determine its real path.
+   */
   absolute(relativePath) {
     if (relativePath == null) {
       return null;
@@ -53,14 +54,15 @@ const fsPlus = {
     }
   },
 
-  // Public: Normalize the given path treating a leading `~` segment as referring
-  // to the home directory. This method does not query the filesystem.
-  //
-  // pathToNormalize - The {String} containing the abnormal path. If the path is
-  //                   prefixed with '~', it will be expanded to the current
-  //                   user's home directory.
-  //
-  // Returns a normalized path {String}.
+  /**
+   * Normalize the given path treating a leading `~` segment as referring
+   * to the home directory. This method does not query the filesystem.
+   *
+   * @param {string} pathToNormalize - The abnormal path. If the path is
+   *   prefixed with '~', it will be expanded to the current user's
+   *   home directory.
+   * @returns {string} A normalized path.
+   */
   normalize(pathToNormalize) {
     if (pathToNormalize == null) {
       return null;
@@ -78,12 +80,13 @@ const fsPlus = {
     return relativePath;
   },
 
-  // Public: Convert an absolute path to tilde path for Linux and macOS.
-  // /Users/username/dev => ~/dev
-  //
-  // pathToTildify - The {String} containing the full path.
-  //
-  // Returns a tildified path {String}.
+  /**
+   * Convert an absolute path to tilde path for Linux and macOS.
+   * /Users/username/dev => ~/dev
+   *
+   * @param {string} pathToTildify - The full path.
+   * @returns {string} A tildified path.
+   */
   tildify(pathToTildify) {
     if (process.platform === "win32") {
       return pathToTildify;
@@ -105,12 +108,15 @@ const fsPlus = {
     return path.join("~", path.sep, normalized.substring(homeDir.length + 1));
   },
 
-  // Public: Get path to store application specific data.
-  //
-  // Returns the {String} absolute path or null if platform isn't supported
-  // Mac: ~/Library/Application Support/
-  // Win: %AppData%
-  // Linux: /var/lib
+  /**
+   * Get path to store application specific data.
+   *
+   * - Mac: ~/Library/Application Support/
+   * - Win: %AppData%
+   * - Linux: /var/lib
+   *
+   * @returns {string|null} The absolute path or null if platform isn't supported.
+   */
   getAppDataDirectory() {
     switch (process.platform) {
       case "darwin":
@@ -126,11 +132,12 @@ const fsPlus = {
     }
   },
 
-  // Public: Is the given path absolute?
-  //
-  // pathToCheck - The relative or absolute {String} path to check.
-  //
-  // Returns a {Boolean}, true if the path is absolute, false otherwise.
+  /**
+   * Is the given path absolute?
+   *
+   * @param {string} pathToCheck - The relative or absolute path to check.
+   * @returns {boolean} True if the path is absolute, false otherwise.
+   */
   isAbsolute(pathToCheck = "") {
     if (pathToCheck == null) {
       pathToCheck = "";
@@ -149,14 +156,24 @@ const fsPlus = {
     return false;
   },
 
-  // Public: Returns true if a file or folder at the specified path exists.
+  /**
+   * Returns true if a file or folder at the specified path exists.
+   *
+   * @param {string} pathToCheck
+   * @returns {boolean}
+   */
   existsSync(pathToCheck) {
     return (
       isPathValid(pathToCheck) && statSyncNoException(pathToCheck) !== false
     );
   },
 
-  // Public: Returns true if the given path exists and is a directory.
+  /**
+   * Returns true if the given path exists and is a directory.
+   *
+   * @param {string} directoryPath
+   * @returns {boolean}
+   */
   isDirectorySync(directoryPath) {
     if (!isPathValid(directoryPath)) {
       return false;
@@ -169,7 +186,12 @@ const fsPlus = {
     }
   },
 
-  // Public: Asynchronously checks that the given path exists and is a directory.
+  /**
+   * Asynchronously checks that the given path exists and is a directory.
+   *
+   * @param {string} directoryPath
+   * @param {function(boolean): void} done
+   */
   isDirectory(directoryPath, done) {
     if (!isPathValid(directoryPath)) {
       return done(false);
@@ -183,7 +205,12 @@ const fsPlus = {
     });
   },
 
-  // Public: Returns true if the specified path exists and is a file.
+  /**
+   * Returns true if the specified path exists and is a file.
+   *
+   * @param {string} filePath
+   * @returns {boolean}
+   */
   isFileSync(filePath) {
     if (!isPathValid(filePath)) {
       return false;
@@ -196,7 +223,12 @@ const fsPlus = {
     }
   },
 
-  // Public: Returns true if the specified path is a symbolic link.
+  /**
+   * Returns true if the specified path is a symbolic link.
+   *
+   * @param {string} symlinkPath
+   * @returns {boolean}
+   */
   isSymbolicLinkSync(symlinkPath) {
     if (!isPathValid(symlinkPath)) {
       return false;
@@ -209,7 +241,12 @@ const fsPlus = {
     }
   },
 
-  // Public: Calls back with true if the specified path is a symbolic link.
+  /**
+   * Calls back with true if the specified path is a symbolic link.
+   *
+   * @param {string} symlinkPath
+   * @param {function(boolean): void} callback
+   */
   isSymbolicLink(symlinkPath, callback) {
     if (isPathValid(symlinkPath)) {
       return fs.lstat(symlinkPath, (error, stat) =>
@@ -220,7 +257,12 @@ const fsPlus = {
     }
   },
 
-  // Public: Returns true if the specified path is executable.
+  /**
+   * Returns true if the specified path is executable.
+   *
+   * @param {string} pathToCheck
+   * @returns {boolean}
+   */
   isExecutableSync(pathToCheck) {
     let stat;
     if (!isPathValid(pathToCheck)) {
@@ -233,7 +275,12 @@ const fsPlus = {
     }
   },
 
-  // Public: Returns the size of the specified path.
+  /**
+   * Returns the size of the specified path.
+   *
+   * @param {string} pathToCheck
+   * @returns {number}
+   */
   getSizeSync(pathToCheck) {
     if (isPathValid(pathToCheck)) {
       return statSyncNoException(pathToCheck).size ?? -1;
@@ -242,12 +289,15 @@ const fsPlus = {
     }
   },
 
-  // Public: Returns an Array with the paths of the files and directories
-  // contained within the directory path. It is not recursive.
-  //
-  // rootPath - The absolute {String} path to the directory to list.
-  // extensions - An {Array} of extensions to filter the results by. If none are
-  //              given, none are filtered (optional).
+  /**
+   * Returns an Array with the paths of the files and directories
+   * contained within the directory path. It is not recursive.
+   *
+   * @param {string} rootPath - The absolute path to the directory to list.
+   * @param {string[]} [extensions] - Extensions to filter the results by.
+   *   If none are given, none are filtered.
+   * @returns {string[]}
+   */
   listSync(rootPath, extensions) {
     if (!fsPlus.isDirectorySync(rootPath)) {
       return [];
@@ -263,13 +313,15 @@ const fsPlus = {
     return paths;
   },
 
-  // Public: Asynchronously lists the files and directories in the given path.
-  // The listing is not recursive.
-  //
-  // rootPath - The absolute {String} path to the directory to list.
-  // extensions - An {Array} of extensions to filter the results by. If none are
-  //              given, none are filtered (optional).
-  // callback - The {Function} to call.
+  /**
+   * Asynchronously lists the files and directories in the given path.
+   * The listing is not recursive.
+   *
+   * @param {string} rootPath - The absolute path to the directory to list.
+   * @param {string[]} [extensions] - Extensions to filter the results by.
+   *   If none are given, none are filtered.
+   * @param {function} callback - The function to call.
+   */
   list(rootPath, ...rest) {
     let extensions;
     if (rest.length > 1) {
@@ -292,7 +344,13 @@ const fsPlus = {
     });
   },
 
-  // Returns only the paths which end with one of the given extensions.
+  /**
+   * Returns only the paths which end with one of the given extensions.
+   *
+   * @param {string[]} paths
+   * @param {string[]} extensions
+   * @returns {string[]}
+   */
   filterExtensions(paths, extensions) {
     extensions = extensions.map((ext) => {
       if (ext === "") {
@@ -306,11 +364,12 @@ const fsPlus = {
     );
   },
 
-  // Public: Get all paths under the given path.
-  //
-  // rootPath - The {String} path to start at.
-  //
-  // Return an {Array} of {String}s under the given path.
+  /**
+   * Get all paths under the given path.
+   *
+   * @param {string} rootPath - The path to start at.
+   * @returns {string[]}
+   */
   listTreeSync(rootPath) {
     const paths = [];
     const onPath = (childPath) => {
@@ -321,7 +380,13 @@ const fsPlus = {
     return paths;
   },
 
-  // Public: Moves the source file or directory to the target asynchronously.
+  /**
+   * Moves the source file or directory to the target asynchronously.
+   *
+   * @param {string} source
+   * @param {string} target
+   * @param {function} callback
+   */
   move(source, target, callback) {
     return isMoveTargetValid(
       source,
@@ -359,7 +424,12 @@ const fsPlus = {
     );
   },
 
-  // Public: Moves the source file or directory to the target synchronously.
+  /**
+   * Moves the source file or directory to the target synchronously.
+   *
+   * @param {string} source
+   * @param {string} target
+   */
   moveSync(source, target) {
     if (!isMoveTargetValidSync(source, target)) {
       const error = new Error(`'${target}' already exists.`);
@@ -374,7 +444,11 @@ const fsPlus = {
     fs.renameSync(source, target);
   },
 
-  // Public: Removes the file or directory at the given path synchronously.
+  /**
+   * Removes the file or directory at the given path synchronously.
+   *
+   * @param {string} pathToRemove
+   */
   removeSync(pathToRemove) {
     if (!this.rimraf)
       throw new Error(
@@ -383,26 +457,40 @@ const fsPlus = {
     return this.rimraf.rimrafSync(pathToRemove);
   },
 
-  // Public: Removes the file or directory at the given path asynchronously.
+  /**
+   * Removes the file or directory at the given path asynchronously.
+   *
+   * @param {string} pathToRemove
+   * @param {function} callback
+   */
   remove(pathToRemove, callback) {
     return this.loadRimRaf()
       .then(({ rimraf }) => rimraf(pathToRemove))
       .then(callback, (error) => callback(error));
   },
 
-  // Public: Open, write, flush, and close a file, writing the given content
-  // synchronously.
-  //
-  // It also creates the necessary parent directories.
+  /**
+   * Open, write, flush, and close a file, writing the given content
+   * synchronously. It also creates the necessary parent directories.
+   *
+   * @param {string} filePath
+   * @param {string|Buffer} content
+   * @param {object} [options]
+   */
   writeFileSync(filePath, content, options) {
     mkdirp.sync(path.dirname(filePath));
     fs.writeFileSync(filePath, content, options);
   },
 
-  // Public: Open, write, flush, and close a file, writing the given content
-  // asynchronously.
-  //
-  // It also creates the necessary parent directories.
+  /**
+   * Open, write, flush, and close a file, writing the given content
+   * asynchronously. It also creates the necessary parent directories.
+   *
+   * @param {string} filePath
+   * @param {string|Buffer} content
+   * @param {object} [options]
+   * @param {function} callback
+   */
   writeFile(filePath, content, options, callback) {
     callback = arguments[arguments.length - 1];
     mkdirp(path.dirname(filePath)).then(
@@ -415,7 +503,13 @@ const fsPlus = {
     );
   },
 
-  // Public: Copies the given path asynchronously.
+  /**
+   * Copies the given path asynchronously.
+   *
+   * @param {string} sourcePath
+   * @param {string} destinationPath
+   * @param {function} done
+   */
   copy(sourcePath, destinationPath, done) {
     mkdirp(path.dirname(destinationPath)).then(
       () => {
@@ -443,7 +537,12 @@ const fsPlus = {
     );
   },
 
-  // Public: Copies the given path recursively and synchronously.
+  /**
+   * Copies the given path recursively and synchronously.
+   *
+   * @param {string} sourcePath
+   * @param {string} destinationPath
+   */
   copySync(sourcePath, destinationPath) {
     // We need to save the sources before creaing the new directory to avoid
     // infinitely creating copies of the directory when copying inside itself
@@ -461,14 +560,16 @@ const fsPlus = {
     }
   },
 
-  // Public: Copies the given path synchronously, buffering reads and writes to
-  // keep memory footprint to a minimum. If the destination directory doesn't
-  // exist, it creates it.
-  //
-  // * sourceFilePath - A {String} representing the file path you want to copy.
-  // * destinationFilePath - A {String} representing the file path where the file will be copied.
-  // * bufferSize - An {Integer} representing the size in bytes of the buffer
-  //   when reading from and writing to disk. The default is 16KB.
+  /**
+   * Copies the given path synchronously, buffering reads and writes to
+   * keep memory footprint to a minimum. If the destination directory doesn't
+   * exist, it creates it.
+   *
+   * @param {string} sourceFilePath - The file path you want to copy.
+   * @param {string} destinationFilePath - The file path where the file will be copied.
+   * @param {number} [bufferSize=16384] - The size in bytes of the buffer
+   *   when reading from and writing to disk.
+   */
   copyFileSync(sourceFilePath, destinationFilePath, bufferSize) {
     if (bufferSize == null) {
       bufferSize = 16 * 1024;
@@ -498,16 +599,25 @@ const fsPlus = {
     }
   },
 
-  // Public: Create a directory at the specified path including any missing
-  // parent directories synchronously.
+  /**
+   * Create a directory at the specified path including any missing
+   * parent directories synchronously.
+   *
+   * @param {string} directoryPath
+   */
   makeTreeSync(directoryPath) {
     if (!fsPlus.isDirectorySync(directoryPath)) {
       mkdirp.sync(directoryPath);
     }
   },
 
-  // Public: Create a directory at the specified path including any missing
-  // parent directories asynchronously.
+  /**
+   * Create a directory at the specified path including any missing
+   * parent directories asynchronously.
+   *
+   * @param {string} directoryPath
+   * @param {function} [callback]
+   */
   makeTree(directoryPath, callback) {
     fsPlus.isDirectory(directoryPath, (exists) => {
       if (exists) {
@@ -520,16 +630,17 @@ const fsPlus = {
     });
   },
 
-  // Public: Recursively walk the given path and execute the given functions
-  // synchronously.
-  //
-  // rootPath - The {String} containing the directory to recurse into.
-  // onFile - The {Function} to execute on each file, receives a single argument
-  //          the absolute path.
-  // onDirectory - The {Function} to execute on each directory, receives a single
-  //               argument the absolute path (defaults to onFile). If this
-  //               function returns a falsy value then the directory is not
-  //               entered.
+  /**
+   * Recursively walk the given path and execute the given functions
+   * synchronously.
+   *
+   * @param {string} rootPath - The directory to recurse into.
+   * @param {function(string): void} onFile - The function to execute on each file,
+   *   receives the absolute path.
+   * @param {function(string): boolean} [onDirectory=onFile] - The function to execute
+   *   on each directory, receives the absolute path. If this function returns
+   *   a falsy value then the directory is not entered.
+   */
   traverseTreeSync(rootPath, onFile, onDirectory) {
     if (onDirectory == null) {
       onDirectory = onFile;
@@ -563,14 +674,17 @@ const fsPlus = {
     return traverse(rootPath, onFile, onDirectory);
   },
 
-  // Public: Recursively walk the given path and execute the given functions
-  // asynchronously.
-  //
-  // rootPath - The {String} containing the directory to recurse into.
-  // onFile - The {Function} to execute on each file, receives a single argument
-  //          the absolute path.
-  // onDirectory - The {Function} to execute on each directory, receives a single
-  //               argument the absolute path (defaults to onFile).
+  /**
+   * Recursively walk the given path and execute the given functions
+   * asynchronously.
+   *
+   * @param {string} rootPath - The directory to recurse into.
+   * @param {function(string): void} onFile - The function to execute on each file,
+   *   receives the absolute path.
+   * @param {function(string): boolean} onDirectory - The function to execute on each
+   *   directory, receives the absolute path.
+   * @param {function} [onDone] - Called when traversal is complete.
+   */
   traverseTree(rootPath, onFile, onDirectory, onDone) {
     const processChild = (childPath, callback) => {
       fs.stat(childPath, (error, stats) => {
@@ -621,26 +735,27 @@ const fsPlus = {
     });
   },
 
-  // Public: Hashes the contents of the given file.
-  //
-  // pathToDigest - The {String} containing the absolute path.
-  //
-  // Returns a String containing the MD5 hexadecimal hash.
+  /**
+   * Hashes the contents of the given file.
+   *
+   * @param {string} pathToDigest - The absolute path.
+   * @returns {string} The MD5 hexadecimal hash.
+   */
   md5ForPath(pathToDigest) {
     const contents = fs.readFileSync(pathToDigest);
     return require("crypto").createHash("md5").update(contents).digest("hex");
   },
 
-  // Public: Finds a relative path among the given array of paths.
-  //
-  // loadPaths - An {Array} of absolute and relative paths to search.
-  // pathToResolve - The {String} containing the path to resolve.
-  // extensions - An {Array} of extensions to pass to {resolveExtensions} in
-  //              which case pathToResolve should not contain an extension
-  //              (optional).
-  //
-  // Returns the absolute path of the file to be resolved if it's found and
-  // undefined otherwise.
+  /**
+   * Finds a relative path among the given array of paths.
+   *
+   * @param {...string} loadPaths - Absolute and relative paths to search.
+   * @param {string} pathToResolve - The path to resolve.
+   * @param {string[]} [extensions] - Extensions to pass to {@link resolveExtension},
+   *   in which case pathToResolve should not contain an extension.
+   * @returns {string|undefined} The absolute path of the file if found,
+   *   undefined otherwise.
+   */
   resolve(...args) {
     let extensions;
     if (Array.isArray(args.at(-1))) {
@@ -683,8 +798,12 @@ const fsPlus = {
     return undefined;
   },
 
-  // Public: Like {.resolve} but uses node's modules paths as the load paths to
-  // search.
+  /**
+   * Like {@link resolve} but uses node's module paths as the load paths to search.
+   *
+   * @param {...*} args
+   * @returns {string|undefined}
+   */
   resolveOnLoadPath(...args) {
     let modulePaths = null;
     if (module.paths != null) {
@@ -699,15 +818,16 @@ const fsPlus = {
     return fsPlus.resolve(...loadPaths, ...args);
   },
 
-  // Public: Finds the first file in the given path which matches the extension
-  // in the order given.
-  //
-  // pathToResolve - The {String} containing relative or absolute path of the
-  //                 file in question without the extension or '.'.
-  // extensions - The ordered {Array} of extensions to try.
-  //
-  // Returns the absolute path of the file if it exists with any of the given
-  // extensions, otherwise it's undefined.
+  /**
+   * Finds the first file in the given path which matches the extension
+   * in the order given.
+   *
+   * @param {string} pathToResolve - The relative or absolute path of the
+   *   file in question without the extension or '.'.
+   * @param {string[]} extensions - The ordered extensions to try.
+   * @returns {string|undefined} The absolute path of the file if it exists
+   *   with any of the given extensions, undefined otherwise.
+   */
   resolveExtension(pathToResolve, extensions) {
     for (let extension of Array.from(extensions)) {
       if (extension === "") {
@@ -725,7 +845,12 @@ const fsPlus = {
     return undefined;
   },
 
-  // Public: Returns true for extensions associated with compressed files.
+  /**
+   * Returns true for extensions associated with compressed files.
+   *
+   * @param {string} ext
+   * @returns {boolean}
+   */
   isCompressedExtension(ext) {
     if (ext == null) {
       return false;
@@ -733,7 +858,12 @@ const fsPlus = {
     return COMPRESSED_EXTENSIONS.hasOwnProperty(ext.toLowerCase());
   },
 
-  // Public: Returns true for extensions associated with image files.
+  /**
+   * Returns true for extensions associated with image files.
+   *
+   * @param {string} ext
+   * @returns {boolean}
+   */
   isImageExtension(ext) {
     if (ext == null) {
       return false;
@@ -741,12 +871,22 @@ const fsPlus = {
     return IMAGE_EXTENSIONS.hasOwnProperty(ext.toLowerCase());
   },
 
-  // Public: Returns true for extensions associated with pdf files.
+  /**
+   * Returns true for extensions associated with pdf files.
+   *
+   * @param {string} ext
+   * @returns {boolean}
+   */
   isPdfExtension(ext) {
     return ext?.toLowerCase() === ".pdf";
   },
 
-  // Public: Returns true for extensions associated with binary files.
+  /**
+   * Returns true for extensions associated with binary files.
+   *
+   * @param {string} ext
+   * @returns {boolean}
+   */
   isBinaryExtension(ext) {
     if (ext == null) {
       return false;
@@ -754,7 +894,12 @@ const fsPlus = {
     return BINARY_EXTENSIONS.hasOwnProperty(ext.toLowerCase());
   },
 
-  // Public: Returns true for files named similarily to 'README'
+  /**
+   * Returns true for files named similarly to 'README'.
+   *
+   * @param {string} readmePath
+   * @returns {boolean}
+   */
   isReadmePath(readmePath) {
     const extension = path.extname(readmePath);
     const base = path.basename(readmePath, extension).toLowerCase();
@@ -764,7 +909,12 @@ const fsPlus = {
     );
   },
 
-  // Public: Returns true for extensions associated with Markdown files.
+  /**
+   * Returns true for extensions associated with Markdown files.
+   *
+   * @param {string} ext
+   * @returns {boolean}
+   */
   isMarkdownExtension(ext) {
     if (ext == null) {
       return false;
@@ -772,9 +922,11 @@ const fsPlus = {
     return MARKDOWN_EXTENSIONS.hasOwnProperty(ext.toLowerCase());
   },
 
-  // Public: Is the filesystem case insensitive?
-  //
-  // Returns `true` if case insensitive, `false` otherwise.
+  /**
+   * Is the filesystem case insensitive?
+   *
+   * @returns {boolean} True if case insensitive, false otherwise.
+   */
   isCaseInsensitive() {
     if (fsPlus.caseInsensitiveFs == null) {
       const lowerCaseStat = statSyncNoException(process.execPath.toLowerCase());
@@ -791,27 +943,35 @@ const fsPlus = {
     return fsPlus.caseInsensitiveFs;
   },
 
-  // Public: Is the filesystem case sensitive?
-  //
-  // Returns `true` if case sensitive, `false` otherwise.
+  /**
+   * Is the filesystem case sensitive?
+   *
+   * @returns {boolean} True if case sensitive, false otherwise.
+   */
   isCaseSensitive() {
     return !fsPlus.isCaseInsensitive();
   },
 
-  // Public: Calls `fs.statSync`, catching all exceptions raised. This
-  // method calls `fs.statSyncNoException` when provided by the underlying
-  // `fs` module (Electron < 3.0).
-  //
-  // Returns `fs.Stats` if the file exists, `false` otherwise.
+  /**
+   * Calls `fs.statSync`, catching all exceptions raised. This method calls
+   * `fs.statSyncNoException` when provided by the underlying `fs` module
+   * (Electron < 3.0).
+   *
+   * @param {...*} args
+   * @returns {fs.Stats|false} The stats if the file exists, false otherwise.
+   */
   statSyncNoException(...args) {
     return statSyncNoException(...args);
   },
 
-  // Public: Calls `fs.lstatSync`, catching all exceptions raised.  This
-  // method calls `fs.lstatSyncNoException` when provided by the underlying
-  // `fs` module (Electron < 3.0).
-  //
-  // Returns `fs.Stats` if the file exists, `false` otherwise.
+  /**
+   * Calls `fs.lstatSync`, catching all exceptions raised. This method calls
+   * `fs.lstatSyncNoException` when provided by the underlying `fs` module
+   * (Electron < 3.0).
+   *
+   * @param {...*} args
+   * @returns {fs.Stats|false} The stats if the file exists, false otherwise.
+   */
   lstatSyncNoException(...args) {
     return lstatSyncNoException(...args);
   },
