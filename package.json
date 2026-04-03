@@ -29,7 +29,6 @@
     "@babel/cli": "^7.21.5",
     "@babel/core": "^7.22.1",
     "babel-preset-atomic": "^5.0.0",
-    "coffeelint": "^2.1.0",
     "cross-env": "^7.0.2",
     "jasmine-focused": "1.x",
     "rollup": "^2.18.2",
@@ -39,17 +38,7 @@
   },
   "dependencies": {
     "async": "^3.2.4",
-    "lodash.includes": "^4.3.0",
-    "lodash.last": "^3.0.0",
     "mkdirp": "^3.0.1",
     "rimraf": "^5.0.1"
-  },
-  "coffeelintConfig": {
-    "no_empty_param_list": {
-      "level": "error"
-    },
-    "max_line_length": {
-      "level": "ignore"
-    }
   }
 }

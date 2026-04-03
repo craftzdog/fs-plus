@@ -3,8 +3,6 @@ import Module from "module";
 import path from "path";
 import async from "async";
 import { mkdirp } from "mkdirp";
-import includes from "lodash.includes";
-import last from "lodash.last";
 
 // Public: Useful extensions to node's built-in fs module
 //
@@ -305,7 +303,7 @@ const fsPlus = {
       }
     });
     return paths.filter((pathToCheck) =>
-      includes(extensions, path.extname(pathToCheck))
+      extensions.includes(path.extname(pathToCheck))
     );
   },
 
@@ -407,7 +405,7 @@ const fsPlus = {
   //
   // It also creates the necessary parent directories.
   writeFile(filePath, content, options, callback) {
-    callback = last(arguments);
+    callback = arguments[arguments.length - 1];
     mkdirp(path.dirname(filePath)).then(
       () => {
         fs.writeFile(filePath, content, options, callback);
@@ -637,7 +635,7 @@ const fsPlus = {
   // undefined otherwise.
   resolve(...args) {
     let extensions;
-    if (Array.isArray(last(args))) {
+    if (Array.isArray(args.at(-1))) {
       extensions = args.pop();
     }
     const pathToResolve = args.pop()?.toString();
