@@ -1,7 +1,9 @@
 import { createPlugins } from "rollup-plugin-atomic";
+import { readFileSync } from "fs";
 
-const plugins = createPlugins(["js", "babel"]);
-const deps = Object.keys(require("./package.json").dependencies);
+const plugins = createPlugins(["js"]);
+const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
+const deps = Object.keys(pkg.dependencies);
 
 export default [
   {

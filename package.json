@@ -7,9 +7,8 @@
   "scripts": {
     "clean": "shx rm -rf lib",
     "test": "jasmine-focused --captureExceptions --coffee spec",
-    "babel": "npm run clean && cross-env NODE_ENV=development cross-env BABEL_KEEP_MODULES=false babel src --out-dir lib",
-    "dev": "npm run clean && cross-env NODE_ENV=development cross-env BABEL_KEEP_MODULES=true rollup -c -w",
-    "build": "npm run clean && cross-env NODE_ENV=production cross-env BABEL_KEEP_MODULES=true rollup -c ",
+    "dev": "npm run clean && cross-env NODE_ENV=development cross-env rollup -c -w",
+    "build": "npm run clean && cross-env NODE_ENV=production cross-env rollup -c ",
     "prepare": "npm run build"
   },
   "repository": {
@@ -26,15 +25,12 @@
     "filesystem"
   ],
   "devDependencies": {
-    "@babel/cli": "^7.21.5",
-    "@babel/core": "^7.22.1",
-    "babel-preset-atomic": "^5.0.0",
-    "cross-env": "^7.0.2",
-    "jasmine-focused": "1.x",
-    "rollup": "^2.18.2",
-    "rollup-plugin-atomic": "^1.2.0",
-    "shx": "^0.3.2",
-    "temp": "~0.8.1"
+    "cross-env": "^10.1.0",
+    "jasmine-focused": "^1.0.7",
+    "rollup": "^4.60.1",
+    "rollup-plugin-atomic": "^3.0.3",
+    "shx": "^0.4.0",
+    "temp": "^0.9.4"
   },
   "dependencies": {
     "mkdirp": "^3.0.1",
