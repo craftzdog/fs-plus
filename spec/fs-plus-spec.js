@@ -3,17 +3,18 @@ const temp = require("temp");
 const fs = require("../lib/fs-plus");
 
 temp.track();
-fs.loadRimRaf();
+
+const fixturesDir = path.join(__dirname, "fixtures");
+const sampleFile = path.join(fixturesDir, "sample.js");
+const linkToSampleFile = path.join(fixturesDir, "link-to-sample.js");
+try {
+  fs.unlinkSync(linkToSampleFile);
+} catch (error) {}
+fs.symlinkSync(sampleFile, linkToSampleFile, "junction");
+
+beforeAll(() => fs.loadRimRaf());
 
 describe("fs", function () {
-  const fixturesDir = path.join(__dirname, "fixtures");
-  const sampleFile = path.join(fixturesDir, "sample.js");
-  const linkToSampleFile = path.join(fixturesDir, "link-to-sample.js");
-  try {
-    fs.unlinkSync(linkToSampleFile);
-  } catch (error) {}
-  fs.symlinkSync(sampleFile, linkToSampleFile, "junction");
-
   describe(".isFileSync(path)", function () {
     it("returns true with a file path", () =>
       expect(fs.isFileSync(path.join(fixturesDir, "sample.js"))).toBe(true));
@@ -44,42 +45,33 @@ describe("fs", function () {
   });
 
   describe(".isSymbolicLink(path, callback)", function () {
-    it("calls back with true for a symbolic link path", function () {
-      const callback = jasmine.createSpy("isSymbolicLink");
-      fs.isSymbolicLink(linkToSampleFile, callback);
-      waitsFor(() => callback.callCount === 1);
-      runs(() => expect(callback.mostRecentCall.args[0]).toBe(true));
+    it("calls back with true for a symbolic link path", (done) => {
+      fs.isSymbolicLink(linkToSampleFile, (result) => {
+        expect(result).toBe(true);
+        done();
+      });
     });
 
-    it("calls back with false for a file path", function () {
-      const callback = jasmine.createSpy("isSymbolicLink");
-      fs.isSymbolicLink(sampleFile, callback);
-      waitsFor(() => callback.callCount === 1);
-      runs(() => expect(callback.mostRecentCall.args[0]).toBe(false));
+    it("calls back with false for a file path", (done) => {
+      fs.isSymbolicLink(sampleFile, (result) => {
+        expect(result).toBe(false);
+        done();
+      });
     });
 
-    it("calls back with false for a non-existent path", function () {
-      const callback = jasmine.createSpy("isSymbolicLink");
+    it("calls back with false for a non-existent path", (done) => {
+      fs.isSymbolicLink(path.join(fixturesDir, "non-existent"), (result) => {
+        expect(result).toBe(false);
 
-      fs.isSymbolicLink(path.join(fixturesDir, "non-existent"), callback);
-      waitsFor(() => callback.callCount === 1);
-      runs(function () {
-        expect(callback.mostRecentCall.args[0]).toBe(false);
+        fs.isSymbolicLink("", (result) => {
+          expect(result).toBe(false);
 
-        callback.reset();
-        fs.isSymbolicLink("", callback);
+          fs.isSymbolicLink(null, (result) => {
+            expect(result).toBe(false);
+            done();
+          });
+        });
       });
-
-      waitsFor(() => callback.callCount === 1);
-      runs(function () {
-        expect(callback.mostRecentCall.args[0]).toBe(false);
-
-        callback.reset();
-        fs.isSymbolicLink(null, callback);
-      });
-
-      waitsFor(() => callback.callCount === 1);
-      runs(() => expect(callback.mostRecentCall.args[0]).toBe(false));
     });
   });
 
@@ -101,39 +93,33 @@ describe("fs", function () {
 
     beforeEach(() => (tempDir = temp.mkdirSync("fs-plus-")));
 
-    it("removes an existing file", function () {
+    it("removes an existing file", (done) => {
       const filePath = path.join(tempDir, "existing-file");
       fs.writeFileSync(filePath, "");
 
-      let done = false;
-      fs.remove(filePath, () => (done = true));
-
-      waitsFor(() => done);
-
-      runs(() => expect(fs.existsSync(filePath)).toBe(false));
+      fs.remove(filePath, () => {
+        expect(fs.existsSync(filePath)).toBe(false);
+        done();
+      });
     });
 
-    it("does nothing for a non-existent file", function () {
+    it("does nothing for a non-existent file", (done) => {
       const filePath = path.join(tempDir, "non-existent-file");
 
-      let done = false;
-      fs.remove(filePath, () => (done = true));
-
-      waitsFor(() => done);
-
-      runs(() => expect(fs.existsSync(filePath)).toBe(false));
+      fs.remove(filePath, () => {
+        expect(fs.existsSync(filePath)).toBe(false);
+        done();
+      });
     });
 
-    it("removes a non-empty directory", function () {
+    it("removes a non-empty directory", (done) => {
       const directoryPath = path.join(tempDir, "subdir");
       fs.makeTreeSync(path.join(directoryPath, "subdir"));
 
-      let done = false;
-      fs.remove(directoryPath, () => (done = true));
-
-      waitsFor(() => done);
-
-      runs(() => expect(fs.existsSync(directoryPath)).toBe(false));
+      fs.remove(directoryPath, () => {
+        expect(fs.existsSync(directoryPath)).toBe(false);
+        done();
+      });
     });
   });
 
@@ -180,44 +166,31 @@ describe("fs", function () {
       }
     });
 
-    it("creates all directories in path including any missing parent directories", function () {
-      const callback = jasmine.createSpy("callback");
+    it("creates all directories in path including any missing parent directories", (done) => {
       const abcPath = path.join(aPath, "b", "c");
-      fs.makeTree(abcPath, callback);
-
-      waitsFor(() => callback.callCount === 1);
-
-      runs(function () {
-        expect(callback.argsForCall[0][0]).toBeNull();
+      fs.makeTree(abcPath, (err) => {
+        expect(err).toBeNull();
         expect(fs.isDirectorySync(abcPath)).toBeTruthy();
 
-        fs.makeTree(abcPath, callback);
-      });
-
-      waitsFor(() => callback.callCount === 2);
-
-      runs(function () {
-        expect(callback.argsForCall[1][0]).toBeUndefined();
-        expect(fs.isDirectorySync(abcPath)).toBeTruthy();
+        fs.makeTree(abcPath, (err) => {
+          expect(err).toBeUndefined();
+          expect(fs.isDirectorySync(abcPath)).toBeTruthy();
+          done();
+        });
       });
     });
 
-    it("calls back with an error when the provided path is a file", function () {
-      const callback = jasmine.createSpy("callback");
+    it("calls back with an error when the provided path is a file", (done) => {
       const tempDir = temp.mkdirSync("fs-plus-");
       const filePath = path.join(tempDir, "file.txt");
       fs.writeFileSync(filePath, "");
       expect(fs.isFileSync(filePath)).toBe(true);
 
-      fs.makeTree(filePath, callback);
-
-      waitsFor(() => callback.callCount === 1);
-
-      runs(function () {
-        expect(callback.argsForCall[0][0]).toBeTruthy();
-        expect(callback.argsForCall[0][1]).toBeUndefined();
-        expect(callback.argsForCall[0][0].code).toBe("EEXIST");
-        expect(callback.argsForCall[0][0].path).toBe(filePath);
+      fs.makeTree(filePath, (err) => {
+        expect(err).toBeTruthy();
+        expect(err.code).toBe("EEXIST");
+        expect(err.path).toBe(filePath);
+        done();
       });
     });
   });
@@ -252,13 +225,12 @@ describe("fs", function () {
     it("returns entries if path is a symlink", function () {
       const symlinkPath = path.join(fixturesDir, "symlink-to-dir");
       const symlinkPaths = [];
-      const onSymlinkPath = (path) =>
-        symlinkPaths.push(path.substring(symlinkPath.length + 1));
+      const onSymlinkPath = (p) =>
+        symlinkPaths.push(p.substring(symlinkPath.length + 1));
 
       const regularPath = path.join(fixturesDir, "dir");
       const paths = [];
-      const onPath = (path) =>
-        paths.push(path.substring(regularPath.length + 1));
+      const onPath = (p) => paths.push(p.substring(regularPath.length + 1));
 
       fs.traverseTreeSync(symlinkPath, onSymlinkPath, onSymlinkPath);
       fs.traverseTreeSync(regularPath, onPath, onPath);
@@ -268,7 +240,6 @@ describe("fs", function () {
 
     it("ignores missing symlinks", function () {
       if (process.platform !== "win32") {
-        // Dir symlinks on Windows require admin
         const directory = temp.mkdirSync("symlink-in-here");
         const paths = [];
         const onPath = (childPath) => paths.push(childPath);
@@ -283,22 +254,19 @@ describe("fs", function () {
   });
 
   describe(".traverseTree(path, onFile, onDirectory, onDone)", function () {
-    it("calls fn for every path in the tree at the given path", function () {
+    it("calls fn for every path in the tree at the given path", (done) => {
       const paths = [];
       const onPath = function (childPath) {
         paths.push(childPath);
         return true;
       };
-      let done = false;
-      const onDone = () => (done = true);
-      fs.traverseTree(fixturesDir, onPath, onPath, onDone);
-
-      waitsFor(() => done);
-
-      runs(() => expect(paths).toEqual(fs.listTreeSync(fixturesDir)));
+      fs.traverseTree(fixturesDir, onPath, onPath, () => {
+        expect(paths).toEqual(fs.listTreeSync(fixturesDir));
+        done();
+      });
     });
 
-    it("does not recurse into a directory if it is pruned", function () {
+    it("does not recurse into a directory if it is pruned", (done) => {
       const paths = [];
       const onPath = function (childPath) {
         if (childPath.match(/\/dir$/)) {
@@ -308,137 +276,38 @@ describe("fs", function () {
           return true;
         }
       };
-      let done = false;
-      const onDone = () => (done = true);
 
-      fs.traverseTree(fixturesDir, onPath, onPath, onDone);
-
-      waitsFor(() => done);
-
-      runs(function () {
+      fs.traverseTree(fixturesDir, onPath, onPath, () => {
         expect(paths.length).toBeGreaterThan(0);
         paths.forEach((filePath) => expect(filePath).not.toMatch(/\/dir\//));
+        done();
       });
     });
 
-    it("returns entries if path is a symlink", function () {
+    it("returns entries if path is a symlink", (done) => {
       const symlinkPath = path.join(fixturesDir, "symlink-to-dir");
       const symlinkPaths = [];
-
-      const onSymlinkPath = (path) =>
-        symlinkPaths.push(path.substring(symlinkPath.length + 1));
+      const onSymlinkPath = (p) =>
+        symlinkPaths.push(p.substring(symlinkPath.length + 1));
 
       const regularPath = path.join(fixturesDir, "dir");
       const paths = [];
-      const onPath = (path) =>
-        paths.push(path.substring(regularPath.length + 1));
+      const onPath = (p) => paths.push(p.substring(regularPath.length + 1));
 
-      let symlinkDone = false;
-      const onSymlinkPathDone = () => (symlinkDone = true);
-
-      let regularDone = false;
-      const onRegularPathDone = () => (regularDone = true);
-
-      fs.traverseTree(
-        symlinkPath,
-        onSymlinkPath,
-        onSymlinkPath,
-        onSymlinkPathDone,
-      );
-      fs.traverseTree(regularPath, onPath, onPath, onRegularPathDone);
-
-      waitsFor(() => symlinkDone && regularDone);
-
-      runs(() => expect(symlinkPaths).toEqual(paths));
-    });
-
-    it("ignores missing symlinks", function () {
-      const directory = temp.mkdirSync("symlink-in-here");
-      const paths = [];
-      const onPath = (childPath) => paths.push(childPath);
-      fs.symlinkSync(
-        path.join(directory, "source"),
-        path.join(directory, "destination"),
-      );
-      let done = false;
-      const onDone = () => (done = true);
-      fs.traverseTree(directory, onPath, onPath, onDone);
-      waitsFor(() => done);
-      runs(() => expect(paths.length).toBe(0));
-    });
-  });
-
-  describe(".traverseTree(path, onFile, onDirectory, onDone)", function () {
-    it("calls fn for every path in the tree at the given path", function () {
-      const paths = [];
-      const onPath = function (childPath) {
-        paths.push(childPath);
-        return true;
-      };
-      let done = false;
-      const onDone = () => (done = true);
-      fs.traverseTree(fixturesDir, onPath, onPath, onDone);
-
-      waitsFor(() => done);
-
-      runs(() => expect(paths).toEqual(fs.listTreeSync(fixturesDir)));
-    });
-
-    it("does not recurse into a directory if it is pruned", function () {
-      const paths = [];
-      const onPath = function (childPath) {
-        if (childPath.match(/\/dir$/)) {
-          return false;
-        } else {
-          paths.push(childPath);
-          return true;
+      let remaining = 2;
+      const check = () => {
+        remaining--;
+        if (remaining === 0) {
+          expect(symlinkPaths).toEqual(paths);
+          done();
         }
       };
-      let done = false;
-      const onDone = () => (done = true);
 
-      fs.traverseTree(fixturesDir, onPath, onPath, onDone);
-
-      waitsFor(() => done);
-
-      runs(function () {
-        expect(paths.length).toBeGreaterThan(0);
-        paths.forEach((filePath) => expect(filePath).not.toMatch(/\/dir\//));
-      });
+      fs.traverseTree(symlinkPath, onSymlinkPath, onSymlinkPath, check);
+      fs.traverseTree(regularPath, onPath, onPath, check);
     });
 
-    it("returns entries if path is a symlink", function () {
-      const symlinkPath = path.join(fixturesDir, "symlink-to-dir");
-      const symlinkPaths = [];
-
-      const onSymlinkPath = (path) =>
-        symlinkPaths.push(path.substring(symlinkPath.length + 1));
-
-      const regularPath = path.join(fixturesDir, "dir");
-      const paths = [];
-      const onPath = (path) =>
-        paths.push(path.substring(regularPath.length + 1));
-
-      let symlinkDone = false;
-      const onSymlinkPathDone = () => (symlinkDone = true);
-
-      let regularDone = false;
-      const onRegularPathDone = () => (regularDone = true);
-
-      fs.traverseTree(
-        symlinkPath,
-        onSymlinkPath,
-        onSymlinkPath,
-        onSymlinkPathDone,
-      );
-      fs.traverseTree(regularPath, onPath, onPath, onRegularPathDone);
-
-      waitsFor(() => symlinkDone && regularDone);
-
-      runs(() => expect(symlinkPaths).toEqual(paths));
-    });
-
-    it("ignores missing symlinks", function () {
+    it("ignores missing symlinks", (done) => {
       const directory = temp.mkdirSync("symlink-in-here");
       const paths = [];
       const onPath = (childPath) => paths.push(childPath);
@@ -446,11 +315,10 @@ describe("fs", function () {
         path.join(directory, "source"),
         path.join(directory, "destination"),
       );
-      let done = false;
-      const onDone = () => (done = true);
-      fs.traverseTree(directory, onPath, onPath, onDone);
-      waitsFor(() => done);
-      runs(() => expect(paths.length).toBe(0));
+      fs.traverseTree(directory, onPath, onPath, () => {
+        expect(paths.length).toBe(0);
+        done();
+      });
     });
   });
 
@@ -503,41 +371,25 @@ describe("fs", function () {
   });
 
   describe(".list(path, [extensions,] callback)", function () {
-    let paths = null;
-
-    it("calls the callback with the absolute paths of entries within the given directory", function () {
-      let done = false;
-      fs.list(fixturesDir, function (err, result) {
-        paths = result;
-        done = true;
-      });
-
-      waitsFor(() => done);
-
-      runs(function () {
+    it("calls the callback with the absolute paths of entries within the given directory", (done) => {
+      fs.list(fixturesDir, function (err, paths) {
         expect(paths).toContain(path.join(fixturesDir, "css.css"));
         expect(paths).toContain(path.join(fixturesDir, "coffee.coffee"));
         expect(paths).toContain(path.join(fixturesDir, "sample.txt"));
         expect(paths).toContain(path.join(fixturesDir, "sample.js"));
         expect(paths).toContain(path.join(fixturesDir, "binary-file.png"));
+        done();
       });
     });
 
-    it("can filter the paths by an optional array of file extensions", function () {
-      let done = false;
-      fs.list(fixturesDir, ["css", ".coffee"], function (err, result) {
-        paths = result;
-        done = true;
-      });
-
-      waitsFor(() => done);
-
-      runs(function () {
+    it("can filter the paths by an optional array of file extensions", (done) => {
+      fs.list(fixturesDir, ["css", ".coffee"], function (err, paths) {
         expect(paths).toContain(path.join(fixturesDir, "css.css"));
         expect(paths).toContain(path.join(fixturesDir, "coffee.coffee"));
         paths.forEach((listedPath) =>
           expect(listedPath).toMatch(/(css|coffee)$/),
         );
+        done();
       });
     });
   });
@@ -615,19 +467,15 @@ describe("fs", function () {
     }));
 
   describe(".writeFile(filePath)", () =>
-    it("creates any missing parent directories", function () {
+    it("creates any missing parent directories", (done) => {
       const directory = temp.mkdirSync("fs-plus-");
       const file = path.join(directory, "a", "b", "c.txt");
       expect(fs.existsSync(path.dirname(file))).toBeFalsy();
 
-      const handler = jasmine.createSpy("writeFileHandler");
-      fs.writeFile(file, "contents", handler);
-
-      waitsFor(() => handler.callCount === 1);
-
-      runs(function () {
+      fs.writeFile(file, "contents", () => {
         expect(fs.readFileSync(file, "utf8")).toBe("contents");
         expect(fs.existsSync(path.dirname(file))).toBeTruthy();
+        done();
       });
     }));
 
@@ -841,100 +689,75 @@ describe("fs", function () {
 
     beforeEach(() => (tempDir = temp.mkdirSync("fs-plus-")));
 
-    it("calls back with an error if the source does not exist", function () {
-      const callback = jasmine.createSpy("callback");
+    it("calls back with an error if the source does not exist", (done) => {
       const directoryPath = path.join(tempDir, "subdir");
       const newDirectoryPath = path.join(tempDir, "subdir2", "subdir2");
 
-      fs.move(directoryPath, newDirectoryPath, callback);
-
-      waitsFor(() => callback.callCount === 1);
-
-      runs(function () {
-        expect(callback.argsForCall[0][0]).toBeTruthy();
-        expect(callback.argsForCall[0][0].code).toBe("ENOENT");
+      fs.move(directoryPath, newDirectoryPath, (err) => {
+        expect(err).toBeTruthy();
+        expect(err.code).toBe("ENOENT");
+        done();
       });
     });
 
-    it("calls back with an error if the target already exists", function () {
-      const callback = jasmine.createSpy("callback");
+    it("calls back with an error if the target already exists", (done) => {
       const directoryPath = path.join(tempDir, "subdir");
       fs.mkdirSync(directoryPath);
       const newDirectoryPath = path.join(tempDir, "subdir2");
       fs.mkdirSync(newDirectoryPath);
 
-      fs.move(directoryPath, newDirectoryPath, callback);
-
-      waitsFor(() => callback.callCount === 1);
-
-      runs(function () {
-        expect(callback.argsForCall[0][0]).toBeTruthy();
-        expect(callback.argsForCall[0][0].code).toBe("EEXIST");
+      fs.move(directoryPath, newDirectoryPath, (err) => {
+        expect(err).toBeTruthy();
+        expect(err.code).toBe("EEXIST");
+        done();
       });
     });
 
-    it("renames if the target just has different letter casing", function () {
-      const callback = jasmine.createSpy("callback");
+    it("renames if the target just has different letter casing", (done) => {
       const directoryPath = path.join(tempDir, "subdir");
       fs.mkdirSync(directoryPath);
       const newDirectoryPath = path.join(tempDir, "SUBDIR");
 
-      fs.move(directoryPath, newDirectoryPath, callback);
-
-      waitsFor(() => callback.callCount === 1);
-
-      runs(function () {
-        // If the filesystem is case-insensitive, the old directory should still exist.
+      fs.move(directoryPath, newDirectoryPath, () => {
         expect(fs.existsSync(directoryPath)).toBe(fs.isCaseInsensitive());
         expect(fs.existsSync(newDirectoryPath)).toBe(true);
+        done();
       });
     });
 
-    it("renames to a target with an existent parent directory", function () {
-      const callback = jasmine.createSpy("callback");
+    it("renames to a target with an existent parent directory", (done) => {
       const directoryPath = path.join(tempDir, "subdir");
       fs.mkdirSync(directoryPath);
       const newDirectoryPath = path.join(tempDir, "subdir2");
 
-      fs.move(directoryPath, newDirectoryPath, callback);
-
-      waitsFor(() => callback.callCount === 1);
-
-      runs(function () {
+      fs.move(directoryPath, newDirectoryPath, () => {
         expect(fs.existsSync(directoryPath)).toBe(false);
         expect(fs.existsSync(newDirectoryPath)).toBe(true);
+        done();
       });
     });
 
-    it("renames to a target with a non-existent parent directory", function () {
-      const callback = jasmine.createSpy("callback");
+    it("renames to a target with a non-existent parent directory", (done) => {
       const directoryPath = path.join(tempDir, "subdir");
       fs.mkdirSync(directoryPath);
       const newDirectoryPath = path.join(tempDir, "subdir2/subdir2");
 
-      fs.move(directoryPath, newDirectoryPath, callback);
-
-      waitsFor(() => callback.callCount === 1);
-
-      runs(function () {
+      fs.move(directoryPath, newDirectoryPath, () => {
         expect(fs.existsSync(directoryPath)).toBe(false);
         expect(fs.existsSync(newDirectoryPath)).toBe(true);
+        done();
       });
     });
 
-    it("renames files", function () {
-      const callback = jasmine.createSpy("callback");
+    it("renames files", (done) => {
       const filePath = path.join(tempDir, "subdir");
       fs.writeFileSync(filePath, "");
       const newFilePath = path.join(tempDir, "subdir2");
 
-      fs.move(filePath, newFilePath, callback);
-
-      waitsFor(() => callback.callCount === 1);
-
-      runs(function () {
+      fs.move(filePath, newFilePath, () => {
         expect(fs.existsSync(filePath)).toBe(false);
         expect(fs.existsSync(newFilePath)).toBe(true);
+        done();
       });
     });
   });
@@ -967,7 +790,6 @@ describe("fs", function () {
 
       fs.moveSync(directoryPath, newDirectoryPath);
 
-      // If the filesystem is case-insensitive, the old directory should still exist.
       expect(fs.existsSync(directoryPath)).toBe(fs.isCaseInsensitive());
       expect(fs.existsSync(newDirectoryPath)).toBe(true);
     });

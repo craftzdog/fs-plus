@@ -5,8 +5,8 @@
   "main": "./lib/fs-plus.js",
   "types": "src/fs-plus.d.ts",
   "scripts": {
-    "clean": "shx rm -rf lib",
-    "test": "jasmine-focused --captureExceptions --coffee spec",
+    "clean": "rm -rf lib",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "dev": "npm run clean && cross-env NODE_ENV=development cross-env rollup -c -w",
     "build": "npm run clean && cross-env NODE_ENV=production cross-env rollup -c ",
     "prepare": "npm run build"
@@ -26,11 +26,14 @@
   ],
   "devDependencies": {
     "cross-env": "^10.1.0",
-    "jasmine-focused": "^1.0.7",
+    "jest": "^30.3.0",
     "rollup": "^4.60.1",
     "rollup-plugin-atomic": "^3.0.3",
-    "shx": "^0.4.0",
     "temp": "^0.9.4"
+  },
+  "jest": {
+    "testMatch": ["<rootDir>/spec/**/*-spec.js"],
+    "transform": {}
   },
   "dependencies": {
     "mkdirp": "^3.0.1",
