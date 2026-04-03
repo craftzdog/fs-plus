@@ -1,7 +1,6 @@
 import fs from "fs";
 import Module from "module";
 import path from "path";
-import async from "async";
 import { mkdirp } from "mkdirp";
 
 // Public: Useful extensions to node's built-in fs module
@@ -573,43 +572,52 @@ const fsPlus = {
   // onDirectory - The {Function} to execute on each directory, receives a single
   //               argument the absolute path (defaults to onFile).
   traverseTree(rootPath, onFile, onDirectory, onDone) {
+    const processChild = (childPath, callback) => {
+      fs.stat(childPath, (error, stats) => {
+        if (error) {
+          return callback();
+        } else if (stats.isFile()) {
+          onFile(childPath);
+          return callback();
+        } else if (stats.isDirectory()) {
+          if (onDirectory(childPath)) {
+            return fs.readdir(childPath, (error, files) => {
+              if (error) {
+                return callback();
+              }
+              return processChildren(
+                files.map((file) => path.join(childPath, file)),
+                callback
+              );
+            });
+          } else {
+            return callback();
+          }
+        } else {
+          return callback();
+        }
+      });
+    };
+
+    const processChildren = (children, callback) => {
+      let i = 0;
+      const next = () => {
+        if (i >= children.length) {
+          return callback();
+        }
+        processChild(children[i++], next);
+      };
+      next();
+    };
+
     return fs.readdir(rootPath, (error, files) => {
       if (error) {
         return onDone?.();
-      } else {
-        let queue = async.queue((childPath, callback) =>
-          fs.stat(childPath, (error, stats) => {
-            if (error) {
-              return callback(error);
-            } else if (stats.isFile()) {
-              onFile(childPath);
-              return callback();
-            } else if (stats.isDirectory()) {
-              if (onDirectory(childPath)) {
-                return fs.readdir(childPath, (error, files) => {
-                  if (error) {
-                    return callback(error);
-                  } else {
-                    for (let file of files) {
-                      queue.unshift(path.join(childPath, file));
-                    }
-                    return callback();
-                  }
-                });
-              } else {
-                return callback();
-              }
-            } else {
-              return callback();
-            }
-          })
-        );
-        queue.concurrency = 1;
-        queue.drain(onDone);
-        for (let file of files) {
-          queue.push(path.join(rootPath, file));
-        }
       }
+      processChildren(
+        files.map((file) => path.join(rootPath, file)),
+        () => onDone?.()
+      );
     });
   },
 
