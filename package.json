@@ -9,7 +9,7 @@
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "dev": "npm run clean && cross-env NODE_ENV=development cross-env rollup -c -w",
     "build": "npm run clean && cross-env NODE_ENV=production cross-env rollup -c ",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -28,11 +28,12 @@
     "cross-env": "^10.1.0",
     "jest": "^30.3.0",
     "rollup": "^4.60.1",
-    "rollup-plugin-atomic": "^3.0.3",
     "temp": "^0.9.4"
   },
   "jest": {
-    "testMatch": ["<rootDir>/spec/**/*-spec.js"],
+    "testMatch": [
+      "<rootDir>/spec/**/*-spec.js"
+    ],
     "transform": {}
   },
   "dependencies": {
